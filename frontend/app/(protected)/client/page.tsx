@@ -2,9 +2,10 @@
 
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
+import Chart from "./Chart";
 
 type Category = { id: number; name: string; organizationId?: number };
-type InvDto = {
+export type InvDto = {
     id: number;
     organizationId: number;
     productId: number;
@@ -158,6 +159,8 @@ export default function ClientProductsByCategory() {
                                             </div>
                                         );
                                     })}
+
+                                <Chart groups={groups}/>
 
                                 {Object.keys(groups).length === 0 && (
                                     <div className="text-center text-[#b7b4c7] py-10">

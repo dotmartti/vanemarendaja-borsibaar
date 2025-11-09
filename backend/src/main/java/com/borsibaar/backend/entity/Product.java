@@ -48,4 +48,7 @@ public class Product {
 
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
+
+    @OneToOne(mappedBy = "product", fetch = FetchType.EAGER)
+    private Inventory inventory;
 }

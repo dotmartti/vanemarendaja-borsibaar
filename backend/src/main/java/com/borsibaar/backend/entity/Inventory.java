@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "inventory")
@@ -20,10 +22,14 @@ public class Inventory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * TODO: remove duplicate organizationId (already in products table)
+     */
+    @Deprecated
     @Column(name = "organization_id", nullable = false)
     private Long organizationId;
 
-    @Column(name = "product_id", nullable = false)
+    @Column(name = "product_id", nullable = false, insertable = false, updatable = false)
     private Long productId;
 
     @Column(nullable = false, precision = 19, scale = 4)
@@ -37,6 +43,13 @@ public class Inventory {
 
     @Column(name = "adjusted_price", precision = 19, scale = 4)
     private BigDecimal adjustedPrice;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    @OneToMany(mappedBy = "inventory")
+    private Set<InventoryTransaction> transactions = new HashSet<>();
 
     // Custom constructor for easy creation
     public Inventory(Long organizationId, Long productId, BigDecimal quantity, BigDecimal adjustedPrice) {

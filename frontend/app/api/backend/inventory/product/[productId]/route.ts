@@ -9,7 +9,7 @@ export async function GET(
             process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
 
         const response = await fetch(
-            `${backendUrl}/api/inventory/product/${params.productId}`,
+            `${backendUrl}/api/inventory/product/${(await params).productId}`,
             {
                 method: "GET",
                 headers: {

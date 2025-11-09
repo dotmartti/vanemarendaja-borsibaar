@@ -143,7 +143,7 @@ public class InventoryService {
         BigDecimal currentPrice = Optional.ofNullable(inventory.getAdjustedPrice()).orElse(product.getBasePrice());
 
         // Create transaction record
-        createTransaction(inventory.getId(), "PURCHASE", request.quantity(),
+        createTransaction(inventory, "PURCHASE", request.quantity(),
                 oldQuantity, newQuantity, currentPrice, currentPrice, null, request.notes(), userId);
 
         InventoryResponseDto base = inventoryMapper.toResponse(inventory);
@@ -192,7 +192,7 @@ public class InventoryService {
         BigDecimal currentPrice = Optional.ofNullable(inventory.getAdjustedPrice()).orElse(product.getBasePrice());
 
         // Create transaction record (negative quantity change)
-        createTransaction(inventory.getId(), "ADJUSTMENT", request.quantity().negate(),
+        createTransaction(inventory, "ADJUSTMENT", request.quantity().negate(),
                 oldQuantity, newQuantity, currentPrice, currentPrice, request.referenceId(), request.notes(), userId);
 
         InventoryResponseDto base = inventoryMapper.toResponse(inventory);
@@ -235,7 +235,7 @@ public class InventoryService {
         BigDecimal currentPrice = Optional.ofNullable(inventory.getAdjustedPrice()).orElse(product.getBasePrice());
 
         // Create transaction record
-        createTransaction(inventory.getId(), "ADJUSTMENT", quantityChange,
+        createTransaction(inventory, "ADJUSTMENT", quantityChange,
                 oldQuantity, request.newQuantity(), currentPrice, currentPrice, null, request.notes(), userId);
 
         InventoryResponseDto base = inventoryMapper.toResponse(inventory);
@@ -353,12 +353,12 @@ public class InventoryService {
                 .toList();
     }
 
-    private void createTransaction(Long inventoryId, String type, BigDecimal quantityChange,
+    private void createTransaction(Inventory inventory, String type, BigDecimal quantityChange,
                                    BigDecimal quantityBefore, BigDecimal quantityAfter,
                                    BigDecimal priceBefore, BigDecimal priceAfter,
                                    String referenceId, String notes, UUID userId) {
         InventoryTransaction transaction = new InventoryTransaction();
-        transaction.setInventoryId(inventoryId);
+        transaction.setInventory(inventory);
         transaction.setTransactionType(type);
         transaction.setQuantityChange(quantityChange);
         transaction.setQuantityBefore(quantityBefore);

@@ -80,7 +80,7 @@ public class ProductService {
         Inventory savedInventory = inventoryRepository.save(inventory);
 
         InventoryTransaction transaction = new InventoryTransaction();
-        transaction.setInventoryId(savedInventory.getId());
+        transaction.setInventory(savedInventory);
         transaction.setTransactionType("INITIAL");
         transaction.setQuantityChange(BigDecimal.ZERO);
         transaction.setQuantityBefore(BigDecimal.ZERO);

@@ -39,8 +39,7 @@ public class PriceCorrectionJob {
 
         int updatedCount = 0;
         for (Product product : inactiveProducts) {
-            Inventory inventory = inventoryRepository
-                    .findByOrganizationIdAndProductId(product.getOrganizationId(), product.getId())
+            Inventory inventory = Optional.ofNullable(product.getInventory())
                     .orElseGet(() -> {
                         Inventory newInv = new Inventory();
                         newInv.setOrganizationId(product.getOrganizationId());
@@ -49,7 +48,7 @@ public class PriceCorrectionJob {
                         newInv.setAdjustedPrice(product.getBasePrice());
                         newInv.setCreatedAt(OffsetDateTime.now());
                         newInv.setUpdatedAt(OffsetDateTime.now());
-                        return inventoryRepository.save(newInv);
+                        return newInv;
                     });
 
             BigDecimal minPrice = Optional.ofNullable(product.getMinPrice()).orElse(Product.DEFAULT_MIN_PRICE);
@@ -70,7 +69,7 @@ public class PriceCorrectionJob {
 
             // Create price reduction transaction
             InventoryTransaction transaction = new InventoryTransaction();
-            transaction.setInventoryId(inventory.getId());
+            transaction.setInventory(inventory);
             transaction.setTransactionType("ADJUSTMENT");
             transaction.setQuantityChange(BigDecimal.ZERO);
             transaction.setQuantityBefore(inventory.getQuantity());

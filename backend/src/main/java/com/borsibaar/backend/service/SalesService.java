@@ -69,8 +69,13 @@ public class SalesService {
         }
 
         // Get inventory for this product
+        /*
         Inventory inventory = inventoryRepository
                 .findByOrganizationIdAndProductId(organizationId, item.productId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "No inventory found for product: " + product.getName()));
+         */
+        Inventory inventory = Optional.ofNullable(product.getInventory())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "No inventory found for product: " + product.getName()));
 
@@ -104,7 +109,7 @@ public class SalesService {
         inventory = inventoryRepository.save(inventory);
 
         // Create sale transaction
-        createSaleTransaction(inventory.getId(), item.quantity(),
+        createSaleTransaction(inventory, item.quantity(),
                 oldQuantity, newQuantity, priceBeforeSale, priceAfterSale,
                 saleId, userId);
 
@@ -120,12 +125,12 @@ public class SalesService {
         );
     }
 
-    private void createSaleTransaction(Long inventoryId, BigDecimal quantity,
+    private void createSaleTransaction(Inventory inventory, BigDecimal quantity,
                                      BigDecimal quantityBefore, BigDecimal quantityAfter,
                                      BigDecimal priceBefore, BigDecimal priceAfter,
                                      String saleId, UUID userId) {
         InventoryTransaction transaction = new InventoryTransaction();
-        transaction.setInventoryId(inventoryId);
+        transaction.setInventory(inventory);
         transaction.setTransactionType("SALE");
         transaction.setQuantityChange(quantity.negate()); // Negative for sales
         transaction.setQuantityBefore(quantityBefore);
