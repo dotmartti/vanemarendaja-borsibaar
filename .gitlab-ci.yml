@@ -9,7 +9,7 @@ variables:
   DOCKER_COMPOSE_FILE: "docker-compose.prod.yaml"
 
 before_script:
-  - 'which ssh-agent || apk add --no-cache openssh-client'
+  - "which ssh-agent || apk add --no-cache openssh-client"
   - eval $(ssh-agent -s)
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh
@@ -53,62 +53,59 @@ deploy-job:
     - build-frontend
   script:
     - echo "Starting deployment..."
-    
+
     # Install required tools
     - apk add --no-cache tar
 
     # Copy the env file from GitLab CI/CD variable to current directory
     - cp $ENV_PRODUCTION_FILE .env.production
-    
+
     # Create deployment package
-    - tar czf deployment.tar.gz backend/target/*.jar frontend/ docker-compose.prod.yaml backend/Dockerfile frontend/Dockerfile .env.production
-    
+    - tar czf deployment.tar.gz backend/target/*.jar frontend/ nginx/ docker-compose.prod.yaml backend/Dockerfile frontend/Dockerfile .env.production
+
     # Copy to server
     - scp deployment.tar.gz $SSH_USER@$SERVER_IP:/tmp/
-    
+
     # Deploy on server
     - |
-        ssh $SSH_USER@$SERVER_IP << EOF
-        set -e
-        cd $DEPLOY_PATH
-        
-        # Extract deployment package
-        tar xzf /tmp/deployment.tar.gz
-        rm /tmp/deployment.tar.gz
-        
-        # Check if docker-compose.prod.yaml exists
-        if [ ! -f $DOCKER_COMPOSE_FILE ]; then
-          echo "ERROR: $DOCKER_COMPOSE_FILE not found!"
-          exit 1
-        fi
+      ssh $SSH_USER@$SERVER_IP << EOF
+      set -e
+      cd $DEPLOY_PATH
 
-        # Copy environment file if exists
-        if [ -f .env.production ]; then
-          cp .env.production .env
-        fi
+      # Extract deployment package
+      tar xzf /tmp/deployment.tar.gz
+      rm /tmp/deployment.tar.gz
 
-        # Clean/repair builder cache and avoid BuildKit flakiness
-        sudo systemctl restart docker
-        docker buildx prune -af || true
-        docker builder prune -af || true
-        docker image prune -af || true
-        
-        # Stop existing containers
-        docker-compose -f $DOCKER_COMPOSE_FILE down
-        
-        # Rebuild and start containers
-        docker-compose -f $DOCKER_COMPOSE_FILE build --no-cache
-        docker-compose -f $DOCKER_COMPOSE_FILE up -d
+      # Check if docker-compose.prod.yaml exists
+      if [ ! -f $DOCKER_COMPOSE_FILE ]; then
+        echo "ERROR: $DOCKER_COMPOSE_FILE not found!"
+        exit 1
+      fi
 
-        # Reload nginx
-        sudo nginx -t && sudo nginx -s reload
-        
-        # Clean up old images
-        docker image prune -f
-        
-        echo "Deployment complete!"
-        docker-compose -f $DOCKER_COMPOSE_FILE ps
-        EOF
+      # Copy environment file if exists
+      if [ -f .env.production ]; then
+        cp .env.production .env
+      fi
+
+      # Clean/repair builder cache and avoid BuildKit flakiness
+      sudo systemctl restart docker
+      docker buildx prune -af || true
+      docker builder prune -af || true
+      docker image prune -af || true
+
+      # Stop existing containers
+      docker-compose -f $DOCKER_COMPOSE_FILE down
+
+       # Rebuild and start containers
+       docker-compose -f $DOCKER_COMPOSE_FILE build --no-cache
+       docker-compose -f $DOCKER_COMPOSE_FILE up -d
+
+       # Clean up old images
+       docker image prune -f
+
+      echo "Deployment complete!"
+      docker-compose -f $DOCKER_COMPOSE_FILE ps
+      EOF
   environment:
     name: production
     url: http://$SERVER_IP

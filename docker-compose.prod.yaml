@@ -12,43 +12,72 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - borsibaar-network
 
   backend:
     build:
       context: backend
       dockerfile: Dockerfile
     container_name: borsibaar-backend
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     env_file:
       - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-      # Production URLs for CORS and OAuth redirects
+      # Production URLs for CORS and OAuth redirects (now through nginx)
       APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
       APP_FRONTEND_URL: ${APP_FRONTEND_URL}
     depends_on:
       - postgres
     restart: unless-stopped
+    networks:
+      - borsibaar-network
 
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile
       args:
-        # Build-time variable for client-side OAuth redirects
+        # Build-time variable for client-side OAuth redirects (now through nginx)
         NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
     container_name: borsibaar-frontend
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       # Server-side: Use Docker network for internal communication
       BACKEND_URL: http://backend:8080
-      # Client-side: Public URL for OAuth redirects (also set at build time)
+      # Client-side: Public URL for OAuth redirects (now through nginx)
       NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
     restart: unless-stopped
     depends_on:
       - backend
+    networks:
+      - borsibaar-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: borsibaar-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      # Mount Let's Encrypt cersificates from host
+      - /etc/letsencrypt/live/borsibaar.zapto.org:/etc/nginx/ssl:ro
+      - /etc/letsencrypt/archive/borsibaar.zapto.org:/etc/nginx/ssl-archive:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - borsibaar-network
 
 volumes:
   postgres_data:
+
+networks:
+  borsibaar-network:
+    driver: bridge

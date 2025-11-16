@@ -30,7 +30,7 @@ public class AuthController {
 
         Cookie cookie = new Cookie("jwt", result.dto().token());
         cookie.setHttpOnly(true);
-        cookie.setSecure(false); // TODO: Set to true in production with HTTPS
+        cookie.setSecure(true); // HTTPS enabled with domain
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60); // 1 day
         response.addCookie(cookie);
@@ -53,7 +53,7 @@ public class AuthController {
         // Clear the JWT cookie
         Cookie jwtCookie = new Cookie("jwt", "");
         jwtCookie.setHttpOnly(true);
-        jwtCookie.setSecure(false); // TODO: Set to true in production with HTTPS
+        jwtCookie.setSecure(true); // HTTPS enabled with domain
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(0); // Expire immediately
         response.addCookie(jwtCookie);

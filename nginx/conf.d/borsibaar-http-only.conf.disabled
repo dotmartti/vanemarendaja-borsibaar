@@ -1,0 +1,171 @@
+# Upstream configuration for backend
+upstream backend {
+    server backend:8080;
+}
+
+# Upstream configuration for frontend
+upstream frontend {
+    server frontend:3000;
+}
+
+# HTTP server
+server {
+    listen 80;
+    server_name _;  # Replace with your domain when you have one
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Backend API endpoints
+    location /api/ {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        
+        # Preserve headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        # WebSocket support (if needed)
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        
+        # Buffering
+        proxy_buffering off;
+        proxy_request_buffering off;
+    }
+
+    # OAuth2 endpoints (backend)
+    location /oauth2/ {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        proxy_buffering off;
+    }
+
+    # OAuth2 callback endpoints (backend)
+    location /login/oauth2/ {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        proxy_buffering off;
+    }
+
+    # Auth endpoints (backend)
+    location /auth/ {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        proxy_buffering off;
+    }
+
+    # Backend actuator endpoints (optional, can be restricted)
+    location /actuator/ {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Uncomment to restrict access
+        # allow 127.0.0.1;
+        # deny all;
+    }
+
+    # Frontend (Next.js) - everything else
+    location / {
+        proxy_pass http://frontend;
+        proxy_http_version 1.1;
+        
+        # Preserve headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        # WebSocket support for Next.js HMR (dev mode)
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        
+        # Buffering
+        proxy_buffering off;
+    }
+
+    # Static files optimization (Next.js static assets)
+    location /_next/static/ {
+        proxy_pass http://frontend;
+        proxy_http_version 1.1;
+        
+        proxy_set_header Host $host;
+        
+        # Cache static assets
+        proxy_cache_valid 200 60m;
+        add_header Cache-Control "public, max-age=3600, immutable";
+    }
+
+    # Next.js image optimization
+    location /_next/image {
+        proxy_pass http://frontend;
+        proxy_http_version 1.1;
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Favicon
+    location /favicon.ico {
+        proxy_pass http://frontend;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Health check endpoint
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+}
+
