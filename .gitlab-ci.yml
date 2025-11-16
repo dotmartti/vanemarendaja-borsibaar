@@ -79,6 +79,16 @@ deploy-job:
         tar xzf /tmp/deployment.tar.gz
         rm /tmp/deployment.tar.gz
         
+        # Debug: Check what files were extracted
+        echo "Files in deployment directory:"
+        ls -la
+        
+        # Check if docker-compose.prod.yaml exists
+        if [ ! -f docker-compose.prod.yaml ]; then
+          echo "ERROR: docker-compose.prod.yaml not found!"
+          exit 1
+        fi
+
         # Copy environment file if exists
         if [ -f .env.production ]; then
           cp .env.production .env
