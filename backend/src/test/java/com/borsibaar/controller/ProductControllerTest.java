@@ -82,8 +82,8 @@ class ProductControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Test Product"))
@@ -115,8 +115,8 @@ class ProductControllerTest {
 
         // Act & Assert: Expect 400 Bad Request due to validation failure
         mockMvc.perform(post("/api/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -143,8 +143,8 @@ class ProductControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
     }
 
@@ -171,8 +171,8 @@ class ProductControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -238,8 +238,8 @@ class ProductControllerTest {
     void testDeleteProduct_NotFound() throws Exception {
         // Arrange: Mock service to throw not found exception
         org.mockito.Mockito.doThrow(new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Product not found: 999"))
+                HttpStatus.NOT_FOUND,
+                "Product not found: 999"))
                 .when(productService).delete(999L);
 
         // Act & Assert
@@ -279,4 +279,3 @@ class ProductControllerTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }
-
