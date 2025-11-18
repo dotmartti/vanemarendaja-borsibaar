@@ -34,12 +34,18 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class InventoryServiceTest {
 
-    @Mock private InventoryRepository inventoryRepository;
-    @Mock private InventoryTransactionRepository inventoryTransactionRepository;
-    @Mock private ProductRepository productRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private BarStationRepository barStationRepository;
-    @Mock private InventoryMapper inventoryMapper;
+    @Mock
+    private InventoryRepository inventoryRepository;
+    @Mock
+    private InventoryTransactionRepository inventoryTransactionRepository;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private BarStationRepository barStationRepository;
+    @Mock
+    private InventoryMapper inventoryMapper;
 
     @InjectMocks private InventoryService inventoryService;
 
@@ -52,7 +58,7 @@ class InventoryServiceTest {
         when(inventoryRepository.findByOrganizationIdAndProductId(1L, 5L)).thenReturn(Optional.empty());
         when(inventoryRepository.save(any(Inventory.class))).thenAnswer(inv -> { Inventory i = inv.getArgument(0); i.setId(77L); return i; });
         when(inventoryMapper.toResponse(any())).thenAnswer(inv -> {
-            Inventory inv = inv.getArgument(0); return new InventoryResponseDto(inv.getId(), inv.getOrganizationId(), inv.getProductId(), "P", inv.getQuantity(), inv.getAdjustedPrice(), null, null, null, inv.getUpdatedAt()); });
+            Inventory i = inv.getArgument(0); return new InventoryResponseDto(i.getId(), i.getOrganizationId(), i.getProductId(), "P", i.getQuantity(), i.getAdjustedPrice(), null, null, null, i.getUpdatedAt().toString()); });
 
         AddStockRequestDto request = new AddStockRequestDto(5L, BigDecimal.valueOf(10), "Notes");
         InventoryResponseDto dto = inventoryService.addStock(request, userId, 1L);
@@ -87,7 +93,7 @@ class InventoryServiceTest {
         when(productRepository.findById(5L)).thenReturn(Optional.of(product));
         when(inventoryRepository.findByOrganizationIdAndProductId(1L, 5L)).thenReturn(Optional.of(inv));
         when(inventoryMapper.toResponse(any())).thenAnswer(a -> {
-            Inventory i = a.getArgument(0); return new InventoryResponseDto(i.getId(), i.getOrganizationId(), i.getProductId(), "Prod", i.getQuantity(), i.getAdjustedPrice(), null, null, null, i.getUpdatedAt()); });
+            Inventory i = a.getArgument(0); return new InventoryResponseDto(i.getId(), i.getOrganizationId(), i.getProductId(), "Prod", i.getQuantity(), i.getAdjustedPrice(), null, null, null, i.getUpdatedAt().toString()); });
 
         AdjustStockRequestDto request = new AdjustStockRequestDto(5L, BigDecimal.valueOf(8), "Adj");
         InventoryResponseDto dto = inventoryService.adjustStock(request, userId, 1L);
@@ -104,7 +110,7 @@ class InventoryServiceTest {
         Product p2 = new Product(); p2.setId(11L); p2.setActive(false); p2.setBasePrice(BigDecimal.ONE); p2.setName("B");
         when(productRepository.findById(10L)).thenReturn(Optional.of(p1));
         when(productRepository.findById(11L)).thenReturn(Optional.of(p2));
-        when(inventoryMapper.toResponse(inv1)).thenReturn(new InventoryResponseDto(1L,1L,10L,"A",BigDecimal.ONE,BigDecimal.ONE,null,null,null,OffsetDateTime.now()));
+        when(inventoryMapper.toResponse(inv1)).thenReturn(new InventoryResponseDto(1L,1L,10L,"A",BigDecimal.ONE,BigDecimal.ONE,null,null,null,OffsetDateTime.now().toString()));
         List<InventoryResponseDto> result = inventoryService.getByOrganization(1L);
         assertEquals(1, result.size());
     }

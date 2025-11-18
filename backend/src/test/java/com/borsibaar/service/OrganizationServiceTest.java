@@ -33,12 +33,12 @@ class OrganizationServiceTest {
 
     @Test
     void create_SetsCreatedAtAndMaps() {
-        OrganizationRequestDto request = new OrganizationRequestDto("Org", "Desc");
+        OrganizationRequestDto request = new OrganizationRequestDto("Org");
         Organization entity = new Organization();
         when(organizationMapper.toEntity(request)).thenReturn(entity);
         Organization saved = new Organization(); saved.setId(3L); saved.setName("Org"); saved.setCreatedAt(OffsetDateTime.now());
         when(organizationRepository.save(entity)).thenReturn(saved);
-        when(organizationMapper.toResponse(saved)).thenReturn(new OrganizationResponseDto(3L, "Org", "Desc", saved.getCreatedAt()));
+        when(organizationMapper.toResponse(saved)).thenReturn(new OrganizationResponseDto(3L, "Org",  saved.getCreatedAt(), saved.getUpdatedAt()));
 
         OrganizationResponseDto dto = organizationService.create(request);
         assertEquals(3L, dto.id());

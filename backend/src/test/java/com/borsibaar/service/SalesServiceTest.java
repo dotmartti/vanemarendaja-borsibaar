@@ -48,7 +48,7 @@ class SalesServiceTest {
         when(inventoryTransactionRepository.save(any(InventoryTransaction.class))).thenAnswer(inv -> inv.getArgument(0));
 
         SaleItemRequestDto item = new SaleItemRequestDto(5L, BigDecimal.valueOf(2));
-        SaleRequestDto request = new SaleRequestDto(List.of(item), 1L, "note");
+        SaleRequestDto request = new SaleRequestDto(List.of(item), "note", 1L);
         SaleResponseDto response = salesService.processSale(request, userId, 1L);
         assertEquals(1, response.items().size());
         assertEquals(BigDecimal.valueOf(20), response.totalAmount());

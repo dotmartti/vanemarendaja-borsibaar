@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.Map;
@@ -25,13 +26,13 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 class AuthServiceTest {
 
-    @MockBean
+    @MockitoBean
     private UserRepository userRepository;
-    @MockBean
+    @MockitoBean
     private JwtService jwtService;
-    @MockBean
+    @MockitoBean
     private UserMapper userMapper;
-    @MockBean
+    @MockitoBean
     private RoleRepository roleRepository;
 
     @Autowired
