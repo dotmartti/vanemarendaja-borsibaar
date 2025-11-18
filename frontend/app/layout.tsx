@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Börsibaari",
-  description: "Börsibaari - where money meets drinks",
+  title: "Börsibaar",
+  description: "Börsibaar",
 };
 
 export default function RootLayout({
