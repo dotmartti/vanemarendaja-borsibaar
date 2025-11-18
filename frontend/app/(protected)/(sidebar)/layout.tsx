@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import {
   SidebarProvider,
-  SidebarInset,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/sidebar";
 
@@ -18,7 +18,10 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
       {!isPOSIDPage && <AppSidebar />}
-        {children}
+        <main className="w-full">
+            {!isPOSIDPage && <SidebarTrigger className="ml-4 mt-4" />}
+            {children}
+        </main>
     </SidebarProvider>
   );
 }
