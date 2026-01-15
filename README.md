@@ -11,6 +11,37 @@ Börsibaar is a full-stack web application with a Spring Boot backend and Next.j
 * **Database**: PostgreSQL with Liquibase migrations
 * **Containerization**: Docker for development environment
 
+
+## Environment Setup
+
+1. Install Docker (just Engine is enough but you can also install the whole Desktop) https://docs.docker.com/engine/install/
+2. Install tools for your platform like 
+```bash
+apt install git openssl ...
+```
+3. To run frontend, you need Node.js and npm.
+```bash
+# insert instructions for Win/Mac/Linux as needed, for example on Debian:
+apt install npm
+```
+
+4. Copy environment file and change credentials and configure credentials
+```bash
+cp .sample.env .env
+```
+5. Google Auth keys 
+  * https://console.cloud.google.com/auth/clients > login > create (don't remember) ... > "Audience - external"
+  * Create OAuth2 client > Web App > OAuth client > copy-paste GOOGLE_CLIENT_ID/_SECRET to your `.env`
+6. Run backend (Postgres DB port 5432, Spring Boot port 8080): 
+```bash
+docker compose up
+```
+7. Start frontend (port 3000) by running 
+```bsah
+cd frontend && npm run dev
+```
+
+
 ## Development Commands
 
 ### Backend (Spring Boot)
@@ -47,6 +78,9 @@ cd frontend && npm run lint
 ```bash
 # Start full development environment (DB and backend)
 docker compose up
+
+# look at all the containers
+docker ps -a
 ```
 
 ## Key Backend Architecture
@@ -82,28 +116,6 @@ Next.js 15 application using the App Router:
 
 PostgreSQL database configured via Docker. Environment variables are loaded from `.env` and `backend/.env` files.
 
-## Environment Setup
-
-1. Copy `.sample.env` to `.env` and configure credentials
-2. Use Docker for local development: `docker compose up`
-3. Start frontend by running `npm run dev` in the `frontend` directory
-
-### Sample `.env` (root)
-
-```env
-POSTGRES_DB=
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-
-SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/{pane siia POSTGRES_DB nimi}
-SPRING_DATASOURCE_USERNAME=
-SPRING_DATASOURCE_PASSWORD=
-
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-
-JWT_SECRET="" # openssl rand -base64 32
-```
 
 ## Sample Spring configuration (application.properties)
 
