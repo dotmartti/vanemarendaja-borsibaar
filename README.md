@@ -32,6 +32,7 @@ cp .sample.env .env
 5. Google Auth keys 
   * https://console.cloud.google.com/auth/clients > login > create (don't remember) ... > "Audience - external"
   * Create OAuth2 client > Web App > OAuth client > copy-paste GOOGLE_CLIENT_ID/_SECRET to your `.env`
+  * Change redirect URI to `http://localhost:8080/login/oauth2/code/google`
 6. Run backend (Postgres DB port 5432, Spring Boot port 8080): 
 ```bash
 docker compose up
